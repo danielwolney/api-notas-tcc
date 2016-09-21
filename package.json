@@ -1,0 +1,19 @@
+{
+  "name": "keepnotes_api",
+  "version": "1.0.0",
+  "description": "API REST da aplicação KeepNotes",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Wolney",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.0.1",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "jsonwebtoken": "^7.1.7",
+    "mongoose": "^4.5.7",
+    "morgan": "^1.7.0"
+  }
+}
