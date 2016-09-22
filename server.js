@@ -114,7 +114,7 @@ apiRoutes.post("/notes", function (req, res) {
         var noteModels = [];
         postNotesList.forEach(function (postNote) {
             if (postNote.localID && postNote.text && postNote.date) {
-                var note = new Note({ text: postNote.text, date: postNote.date, creator: req.userID });
+                var note = new Note({ text: postNote.text, date: new Date(postNote.date), creator: req.userID });
                 noteModels.push({ localID: postNote.localID, note: note });
             }
         });
@@ -146,7 +146,7 @@ apiRoutes.delete("/notes", function (req, res) {
             if (postNotesList.length > 0) {
                 Note.findByIdAndRemove(postNotesList[0],function (error, deletedNote) {
                     if (error) {
-                        //return;
+                        console.log(error);
                     }
                     if (deletedNote) {
                         deletedNotes.push(postNotesList[0]);
@@ -160,6 +160,38 @@ apiRoutes.delete("/notes", function (req, res) {
             }
         }
         deleteFirst();
+    }
+});
+
+apiRoutes.put("/notes", function (req, res) {
+    var postNotesList = req.body;
+    if (!postNotesList || !Array.isArray(postNotesList) || postNotesList.length < 1) {
+        res.status(400).json({ success: false, message: "Lista de notas invalidas" });
+        return;
+    } else {
+        var updatedNotes = [];
+        var updateFirst = function () {
+            if (postNotesList.length > 0) {
+                if (postNotesList[0].resourceID && postNotesList[0].text && postNotesList[0].date) {
+                    Note.findByIdAndUpdate(postNotesList[0].resourceID,{text: postNotesList[0].text,date: new Date(postNotesList[0].date)},function (error, updatedNote) {
+                        if (error) {
+                            console.log(error);
+                        }
+                        if (updatedNote) {
+                            updatedNotes.push(postNotesList[0].resourceID);
+                        }
+                        postNotesList.shift();
+                        updateFirst();
+                    });
+                } else {
+                    postNotesList.shift();
+                    updateFirst();
+                }
+            } else {
+                res.json({ success: true, updatedNotes: updatedNotes });
+            }
+        }
+        updateFirst();
     }
 });
 
