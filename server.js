@@ -25,7 +25,7 @@ app.use(expressValidator());
 app.use(morgan('dev'));
 
 app.get("/", function (req, res) {
-    res.send("Hello! The Server API is running at http://localhost:" + port + "/api/v1");
+    res.send("Hello! The Server API is running at " + req.protocol + '://' + req.get('host') + req.originalUrl + "api/v1");
 });
 
 app.post("/setup", function (req, res) {
@@ -52,7 +52,7 @@ apiRoutes.post("/login", function (req, res) {
             if (error) {
                 res.status(500).json({ success: false, error: error });
             } else if (user) {
-                var token = jwt.sign({ id: user._id }, config.secret, { expiresIn: "2 days" });
+                var token = jwt.sign({ id: user._id }, app.get('secret'), { expiresIn: "2 days" });
                 res.json({ success: true, message: "Login successful", token: token });
             } else {
                 res.status(401).json({ success: false, message: "User or password invalid" });
@@ -65,7 +65,7 @@ apiRoutes.use(function (req, res, next) {
     var token = req.body.token || req.query.token || req.headers["x-access-token"];
 
     if (token) {
-        jwt.verify(token, config.secret, function (error, decoded) {
+        jwt.verify(token, app.get('secret'), function (error, decoded) {
             if (error) {
                 return res.status(403).json({ success: false, message: 'Failed to authenticate token' });
             }
